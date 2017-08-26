@@ -27,7 +27,6 @@ $.getJSON("/articles", function(data) {
         // articles.push("<p>" + data[i].notes[j].body + "</p>");
         // articles.push("<button id='remove'>Remove Note</button>");
 
-        // Next step to 
       }
     }
     

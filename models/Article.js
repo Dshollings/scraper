@@ -10,16 +10,30 @@ var ArticleSchema = new Schema({
     type: String,
     required: true
   },
+  // date is a required string
+  date: {
+    type: String,
+    required: true
+  },
   // link is a required string
   link: {
     type: String,
     required: true
   },
-  // This only saves one note's ObjectId, ref refers to the Note model
-  note: {
+  // image is a required string
+  image: {
+    type: String,
+    required: true
+  },
+  brief: {
+    type: String,
+    required: true
+  },
+  // Saves notes
+  notes: [{
     type: Schema.Types.ObjectId,
     ref: "Note"
-  }
+  }]
 });
 
 // Create the Article model with the ArticleSchema

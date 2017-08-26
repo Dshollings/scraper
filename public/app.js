@@ -6,7 +6,7 @@
 $.getJSON("/articles", function(data) {
   // For each one
   for (var i = 0; i < data.length; i++) {
-    // Display the apropos information on the page
+    // Display the article on the page
     var articles = [];
     articles.push("<img class='photo' src=" + data[i].image + " >");
     articles.push("<h2 data-id=" + data[i]._id + ">" + data[i].title + "</h2>");
@@ -49,7 +49,7 @@ $(document).on("click", "h2", function() {
     method: "GET",
     url: "/articles/" + thisId
   })
-    // With that done, add the note information to the page
+    // Open Note interface
     .done(function(data) {
       console.log(data);
       // The title of the article
@@ -61,11 +61,11 @@ $(document).on("click", "h2", function() {
       // A button to submit a new note, with the id of the article saved to it
       $("#notes").append("<button data-id='" + data._id + "' id='savenote'>Save Note</button>");
 
-      // If there's a note in the article
       
     });
 });
 
+// Updates the news in DB and refreshes page
 $(document).on("click", "#update", function() {
   console.log("updating")
   $.ajax({

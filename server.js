@@ -1,25 +1,16 @@
-/* Showing Mongoose's "Populated" Method
- * =============================================== */
-
 // Dependencies
 var express = require("express");
 var bodyParser = require("body-parser");
 var logger = require("morgan");
 var mongoose = require("mongoose");
-// Requiring our Note and Article models
 var Note = require("./models/Note.js");
 var Article = require("./models/Article.js");
-// Our scraping tools
 var request = require("request");
 var cheerio = require("cheerio");
-// Set mongoose to leverage built in JavaScript ES6 Promises
 mongoose.Promise = Promise;
 
-
-// Initialize Express
 var app = express();
 
-// Use morgan and body parser with our app
 app.use(logger("dev"));
 app.use(bodyParser.urlencoded({
   extended: false
@@ -46,33 +37,27 @@ db.once("open", function() {
 // Routes
 // ======
 
-// A GET request to scrape the echojs website
+// A GET request to scrape the UT website's local news page
 app.get("/update", function(req, res) {
-  // First, we grab the body of the html with request
+  // html request
   request("http://www.sandiegouniontribune.com/communities/san-diego/", function(error, response, html) {
     // Then, we load that into cheerio and save it to $ for a shorthand selector
     var $ = cheerio.load(html);
-    // Now, we grab every h2 within an article tag, and do the following:
+    // Now, we grab every article on the page:
     $(".trb_outfit_group_list_item").each(function(i, element) {
-      // console.log($(this).children("img"))
       
-      console.log("-----------------------------------")
-      // Save an empty result object
       var result = {};
 
-      // Add the text and href of every link, and save them as properties of the result object
       result.title = $(this).children(".trb_outfit_group_list_item_body").children("h3").text()
       result.date = $(this).children(".trb_outfit_group_list_item_body").children(".trb_outfit_group_item_label").children("span").attr("data-dt")
       result.link = "http://www.sandiegouniontribune.com/communities/san-diego/" + $(this).children("a").attr("href");
       result.image = $(this).children(".trb_outfit_group_list_item_figure").children("img").attr("data-baseurl");
       result.brief = $(this).children(".trb_outfit_group_list_item_body").children("p").text();
-      console.log(result.date)
 
       // Using our Article model, create a new entry
-      // This effectively passes the result object to the entry (and the title and link)
       var entry = new Article(result);
 
-      // Now, save that entry to the db
+      // Save entry to the db
       entry.save(function(err, doc) {
         // Log any errors
         if (err) {
@@ -86,11 +71,9 @@ app.get("/update", function(req, res) {
 
     });
   });
-  // Tell the browser that we finished scraping the text
-  res.send("Scrape Complete");
 });
 
-// This will get the articles we scraped from the mongoDB
+// Get articles from mongoDB
 app.get("/articles", function(req, res) {
   // Grab every doc in the Articles array
   Article.find({}, function(error, doc) {
@@ -125,7 +108,7 @@ app.get("/articles/:id", function(req, res) {
 });
 
 
-// Create a new note or replace an existing note
+// Create a new note
 app.post("/articles/:id", function(req, res) {
   // Create a new note and pass the req.body to the entry
   var newNote = new Note(req.body);
@@ -138,7 +121,7 @@ app.post("/articles/:id", function(req, res) {
     }
     // Otherwise
     else {
-      // Use the article id to find and update it's note
+      // Use the article id to push new note
       Article.findOneAndUpdate({ "_id": req.params.id }, { $push : {"notes": doc._id }})
 
       // Execute the above query
@@ -158,7 +141,7 @@ app.post("/articles/:id", function(req, res) {
 
 
 // Listen on port 3030
-var port = process.env.PORT || 3030;
+var port = process.env.PORT || 3050;
 app.listen(port, function() {
-  console.log("App running on port 3030!");
+  console.log("App running on port 3050!");
 });
